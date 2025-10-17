@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { buyCorn } from '@/api/corn';
+import { buyCorn } from "@/api/corn";
 
 export function BuyCornButton() {
   const mutation = useMutation({
