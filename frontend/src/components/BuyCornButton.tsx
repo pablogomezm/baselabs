@@ -1,22 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { HttpStatus } from "@/constants/http-status";
-
-async function buyCorn() {
-  const response = await fetch("http://localhost:3001/buy-corn", {
-    method: "POST",
-  });
-
-  if (!response.ok) {
-    if (response.status === HttpStatus.TOO_MANY_REQUESTS) {
-      throw new Error("Too many requests, wait 1 minute");
-    }
-    throw new Error("Unexpected error");
-  }
-
-  return response.json();
-}
+import { buyCorn } from '@/api/corn';
 
 export function BuyCornButton() {
   const mutation = useMutation({
