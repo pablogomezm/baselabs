@@ -3,13 +3,26 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { User } from 'generated/prisma/client';
+import { HashService } from './hash.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private hashService: HashService,
+  ) {}
 
-  create(createUserDto: CreateUserDto): Promise<User> {
-    return this.prisma.user.create({ data: createUserDto });
+  async register(createUserDto: CreateUserDto): Promise<User> {
+    const hashedPassword = await this.hashService.hashPassword(
+      createUserDto.password,
+    );
+
+    return this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+      },
+    });
   }
 
   findAll(): Promise<User[]> {
