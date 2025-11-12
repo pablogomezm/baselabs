@@ -8,6 +8,10 @@ COPY package.json pnpm-lock.yaml ./
 
 RUN pnpm install
 
+COPY prisma ./prisma
+
+RUN pnpm exec prisma generate
+
 COPY . .
 
 EXPOSE 3001
