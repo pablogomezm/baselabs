@@ -10,10 +10,8 @@ RUN pnpm install
 
 COPY prisma ./prisma
 
-RUN pnpm exec prisma generate
-
 COPY . .
 
 EXPOSE 3001
 
-CMD ["pnpm", "run", "start:dev"]
+ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
