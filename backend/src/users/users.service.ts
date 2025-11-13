@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
-import { User } from 'generated/prisma/client';
+import { User } from 'prisma-client';
 import { HashService } from './hash.service';
 
 @Injectable()
