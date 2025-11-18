@@ -39,14 +39,10 @@ export class UsersService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User> {
-    const user: User | null = await this.prisma.user.findUnique({
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
       where: { email },
     });
-    if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
-    }
-    return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
