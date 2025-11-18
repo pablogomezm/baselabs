@@ -7,5 +7,6 @@ import { HashService } from './hash.service';
 @Module({
   controllers: [UsersController],
   providers: [UsersService, PrismaService, HashService],
+  exports: [UsersService, HashService],
 })
 export class UsersModule {}
