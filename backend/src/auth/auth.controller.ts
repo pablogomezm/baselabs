@@ -1,13 +1,15 @@
 import { Controller, Post, Request, UseGuards } from '@nestjs/common';
-import { UserWithoutPassword } from 'src/types/user.types';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { AuthenticatedRequest } from './types/auth.types';
+import { AuthenticatedRequest, SignInResponse } from './types/auth.types';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
   @Post('signin')
   @UseGuards(LocalAuthGuard)
-  signin(@Request() req: AuthenticatedRequest): UserWithoutPassword {
-    return req.user;
+  signin(@Request() req: AuthenticatedRequest): SignInResponse {
+    return this.authService.login(req.user);
   }
 }
