@@ -2,13 +2,11 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN corepack enable
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install
-
-COPY prisma ./prisma
+RUN pnpm fetch
 
 COPY . .
 
