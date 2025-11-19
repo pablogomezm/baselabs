@@ -11,8 +11,10 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from 'prisma-client';
+import { Role, User } from 'prisma-client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -24,8 +26,20 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   findAll(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('authenticated')
+  findAllAuthenticated(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin_only')
+  findAllAdminOnly(): Promise<User[]> {
     return this.usersService.findAll();
   }
 

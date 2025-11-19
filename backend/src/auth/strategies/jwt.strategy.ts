@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { User } from 'prisma-client';
+import { UsersService } from 'src/users/users.service';
+import { UserWithoutPassword } from 'src/types/user.types';
 import { JWT_CONSTANTS } from '../constants/jwt';
 import { PASSPORT_STRATEGIES } from '../constants/passport-strategies';
 
@@ -14,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(
   Strategy,
   PASSPORT_STRATEGIES.JWT,
 ) {
-  constructor() {
+  constructor(private usersService: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -22,7 +25,15 @@ export class JwtStrategy extends PassportStrategy(
     });
   }
 
-  validate(payload: JwtPayload) {
-    return { id: payload.sub, email: payload.email };
+  async validate(payload: JwtPayload): Promise<UserWithoutPassword> {
+    const user: User | null = await this.usersService.findByEmail(
+      payload.email,
+    );
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }
