@@ -8,7 +8,6 @@ corepack prepare pnpm@latest --activate >/dev/null 2>&1 || true
 # if lockfile is newer than node_modules, install dependencies
 if [ ! -d node_modules ] || [ ! -f node_modules/.pnpm-integrity ] || \
    [ pnpm-lock.yaml -nt node_modules/.pnpm-integrity ]; then
-  echo "pnpm install required, installing..."
   echo "pnpm install --frozen-lockfile"
   pnpm install --frozen-lockfile
 fi
@@ -18,6 +17,9 @@ pnpm exec prisma generate
 
 echo "pnpm exec prisma migrate deploy"
 pnpm exec prisma migrate deploy
+
+echo "pnpm exec prisma db seed"
+pnpm exec prisma db seed
 
 echo "pnpm run start:dev"
 exec pnpm run start:dev
