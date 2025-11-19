@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { User } from 'prisma-client';
 import { HashService } from './hash.service';
+import { UserWithoutPassword } from 'src/types/user.types';
 
 @Injectable()
 export class UsersService {
@@ -12,17 +13,19 @@ export class UsersService {
     private hashService: HashService,
   ) {}
 
-  async register(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
     const hashedPassword = await this.hashService.hashPassword(
       createUserDto.password,
     );
 
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
         password: hashedPassword,
       },
     });
+
+    return this.getUserWithoutPassword(user);
   }
 
   findAll(): Promise<User[]> {
@@ -62,5 +65,11 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     return user;
+  }
+
+  getUserWithoutPassword(user: User): UserWithoutPassword {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }

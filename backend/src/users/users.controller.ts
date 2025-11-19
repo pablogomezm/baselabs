@@ -15,14 +15,15 @@ import { Role, User } from 'prisma-client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserWithoutPassword } from 'src/types/user.types';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  register(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.register(createUserDto);
+  create(@Body() createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
+    return this.usersService.create(createUserDto);
   }
 
   @Get()

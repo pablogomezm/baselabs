@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'prisma-client';
+import { Prisma, User } from 'prisma-client';
 import { UserWithoutPassword } from 'src/types/user.types';
 import { HashService } from 'src/users/hash.service';
 import { UsersService } from 'src/users/users.service';
 import { SignInResponse } from './types/auth.types';
+import { SignUpDto } from './dto/signup.dto';
+import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class AuthService {
@@ -27,9 +29,7 @@ export class AuthService {
     );
     if (!passwordIsValid) return null;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return this.usersService.getUserWithoutPassword(user);
   }
 
   login(user: UserWithoutPassword): SignInResponse {
@@ -37,5 +37,26 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async signUp(signUpDto: SignUpDto): Promise<UserWithoutPassword> {
+    const hashedPassword = await this.hashService.hashPassword(
+      signUpDto.password,
+    );
+    try {
+      const user: UserWithoutPassword = await this.usersService.create({
+        ...signUpDto,
+        password: hashedPassword,
+      });
+      return user;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Email already in use');
+      }
+      throw error;
+    }
   }
 }
