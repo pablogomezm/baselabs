@@ -1,12 +1,12 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, User } from 'prisma-client';
+import { User } from 'prisma-client';
 import { UserWithoutPassword } from 'src/types/user.types';
 import { HashService } from 'src/users/hash.service';
 import { UsersService } from 'src/users/users.service';
 import { SignInResponse } from './types/auth.types';
 import { SignUpDto } from './dto/signup.dto';
-import { PrismaClientKnownRequestError } from '../../generated/prisma/internal/prismaNamespace';
+import { isPrismaUniqueConstraintError } from 'src/utils/prisma-error.utils';
 
 @Injectable()
 export class AuthService {
@@ -50,10 +50,7 @@ export class AuthService {
       });
       return user;
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
+      if (isPrismaUniqueConstraintError(error)) {
         throw new ConflictException('Email already in use');
       }
       throw error;
