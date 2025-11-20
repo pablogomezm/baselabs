@@ -3,12 +3,13 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from 'src/auth/types/auth.types';
 import { CreateOrderDto, CreateOrderResponseDto } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
+import { UserThrottlerGuard } from 'src/auth/guards/user-throttler.guard';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserThrottlerGuard)
   @Post()
   createOrder(
     @Request() req: AuthenticatedRequest,

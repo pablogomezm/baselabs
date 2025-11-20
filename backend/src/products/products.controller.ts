@@ -9,14 +9,14 @@ import { MyProductsDto } from './dto/my-products.dto';
 export class ProductsController {
   constructor(private productService: ProductsService) {}
 
-  @Get(':sku')
-  getProductInfo(@Param('sku') sku: string): Promise<ProductInfoDto> {
-    return this.productService.getProductInfo(sku);
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('my-products')
   myProducts(@Request() req: AuthenticatedRequest): Promise<MyProductsDto[]> {
     return this.productService.myProducts(req.user.id);
+  }
+
+  @Get(':sku')
+  getProductInfo(@Param('sku') sku: string): Promise<ProductInfoDto> {
+    return this.productService.getProductInfo(sku);
   }
 }

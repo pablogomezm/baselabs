@@ -40,15 +40,8 @@ export class AuthService {
   }
 
   async signUp(signUpDto: SignUpDto): Promise<UserWithoutPassword> {
-    const hashedPassword = await this.hashService.hashPassword(
-      signUpDto.password,
-    );
     try {
-      const user: UserWithoutPassword = await this.usersService.create({
-        ...signUpDto,
-        password: hashedPassword,
-      });
-      return user;
+      return this.usersService.create(signUpDto);
     } catch (error) {
       if (isPrismaUniqueConstraintError(error)) {
         throw new ConflictException('Email already in use');
