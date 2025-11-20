@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from 'src/auth/types/auth.types';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, CreateOrderResponseDto } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
 
 @Controller('orders')
@@ -13,7 +13,7 @@ export class OrdersController {
   createOrder(
     @Request() req: AuthenticatedRequest,
     @Body() createOrderDto: CreateOrderDto,
-  ) {
+  ): Promise<CreateOrderResponseDto> {
     return this.ordersService.createOrder(req.user.id, createOrderDto);
   }
 }

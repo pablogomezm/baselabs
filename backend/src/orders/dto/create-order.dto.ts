@@ -9,3 +9,10 @@ export class CreateOrderDto {
   @IsNumber()
   quantity: number;
 }
+
+export class CreateOrderResponseDto {
+  orderNumber: number;
+  sku: string;
+  quantity: number;
+  totalPrice: number;
+}

@@ -3,15 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserProduct } from 'prisma-client';
 import { PrismaService } from 'src/prisma.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, CreateOrderResponseDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrdersService {
   constructor(private prismaService: PrismaService) {}
 
-  async createOrder(userId: string, createOrderDto: CreateOrderDto) {
+  async createOrder(
+    userId: string,
+    createOrderDto: CreateOrderDto,
+  ): Promise<CreateOrderResponseDto> {
     console.log(userId);
     console.log(createOrderDto);
     const { sku, quantity } = createOrderDto;
@@ -30,36 +32,45 @@ export class OrdersService {
       );
     }
 
-    const userProduct: UserProduct = await this.prismaService.$transaction(
-      async (prisma) => {
-        await prisma.product.update({
-          where: { id: product.id },
-          data: { stock: { decrement: quantity } },
-        });
+    const order = await this.prismaService.$transaction(async (prisma) => {
+      await prisma.product.update({
+        where: { id: product.id },
+        data: { stock: { decrement: quantity } },
+      });
 
-        const txUserProduct = await prisma.userProduct.upsert({
-          where: {
-            userId_productId: {
-              userId,
-              productId: product.id,
-            },
-          },
-          update: {
-            quantity: { increment: quantity },
-          },
-          create: {
+      await prisma.userProduct.upsert({
+        where: {
+          userId_productId: {
             userId,
             productId: product.id,
-            quantity,
           },
-          include: {
-            product: true,
-          },
-        });
-        return txUserProduct;
-      },
-    );
+        },
+        update: {
+          quantity: { increment: quantity },
+        },
+        create: {
+          userId,
+          productId: product.id,
+          quantity,
+        },
+      });
 
-    return userProduct;
+      const order = prisma.order.create({
+        data: {
+          userId,
+          productId: product.id,
+          quantity,
+          totalPrice: product.price * quantity,
+        },
+      });
+      return order;
+    });
+
+    return {
+      orderNumber: order.orderNumber,
+      sku,
+      quantity,
+      totalPrice: order.totalPrice,
+    };
   }
 }
