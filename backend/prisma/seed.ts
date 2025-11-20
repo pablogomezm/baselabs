@@ -11,6 +11,7 @@ async function main() {
       sku: 'CORN-001',
       name: 'Corn',
       stock: 2,
+      price: 2.5,
     },
   });
   console.log('Created product:', corn);
