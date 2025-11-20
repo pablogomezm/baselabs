@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { ProductStockDto } from './dto/product-stock.dto';
+import { ProductInfoDto } from './dto/product-stock.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from 'src/auth/types/auth.types';
 import { MyProductsDto } from './dto/my-products.dto';
@@ -9,9 +9,9 @@ import { MyProductsDto } from './dto/my-products.dto';
 export class ProductsController {
   constructor(private productService: ProductsService) {}
 
-  @Get('stock/:sku')
-  getStock(@Param('sku') sku: string): Promise<ProductStockDto> {
-    return this.productService.getStock(sku);
+  @Get(':sku')
+  getProductInfo(@Param('sku') sku: string): Promise<ProductInfoDto> {
+    return this.productService.getProductInfo(sku);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,26 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Product } from 'prisma-client';
 import { PrismaService } from 'src/prisma.service';
-import { ProductStockDto } from './dto/product-stock.dto';
+import { ProductInfoDto } from './dto/product-stock.dto';
 import { MyProductsDto } from './dto/my-products.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(private prismaService: PrismaService) {}
 
-  async getStock(sku: string): Promise<ProductStockDto> {
-    const product: Product | null = await this.prismaService.product.findUnique(
-      {
-        where: { sku },
+  async getProductInfo(sku: string): Promise<ProductInfoDto> {
+    const product = await this.prismaService.product.findUnique({
+      where: { sku },
+      select: {
+        sku: true,
+        name: true,
+        stock: true,
+        price: true,
       },
-    );
+    });
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    return {
-      sku: product.sku,
-      stock: product.stock,
-    };
+    return product;
   }
 
   async myProducts(userId: string): Promise<MyProductsDto[]> {
