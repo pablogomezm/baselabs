@@ -8,7 +8,7 @@ import { CreateOrderDto, CreateOrderResponseDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
   async createOrder(
     userId: string,
@@ -18,7 +18,7 @@ export class OrdersService {
     console.log(createOrderDto);
     const { sku, quantity } = createOrderDto;
 
-    const product = await this.prismaService.product.findUnique({
+    const product = await this.prisma.product.findUnique({
       where: { sku },
     });
 
@@ -32,7 +32,7 @@ export class OrdersService {
       );
     }
 
-    const order = await this.prismaService.$transaction(async (prisma) => {
+    const order = await this.prisma.$transaction(async (prisma) => {
       await prisma.product.update({
         where: { id: product.id },
         data: { stock: { decrement: quantity } },

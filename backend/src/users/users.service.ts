@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 import { User } from 'prisma-client';
 import { HashService } from './hash.service';
 import { UserWithoutPassword } from 'src/types/user.types';
+import { MyProductsDto } from './dto/my-products.dto';
 
 @Injectable()
 export class UsersService {
@@ -71,5 +72,27 @@ export class UsersService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  async myProducts(userId: string): Promise<MyProductsDto[]> {
+    const userProducts = await this.prisma.userProduct.findMany({
+      where: { userId },
+      select: {
+        quantity: true,
+        product: {
+          select: {
+            sku: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    const mappedUserProducts = userProducts.map((userProduct) => ({
+      sku: userProduct.product.sku,
+      name: userProduct.product.name,
+      quantity: userProduct.quantity,
+    }));
+    return mappedUserProducts;
   }
 }

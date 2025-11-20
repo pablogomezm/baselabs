@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,10 +17,18 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserWithoutPassword } from 'src/types/user.types';
+import { AuthenticatedRequest } from 'src/auth/types/auth.types';
+import { MyProductsDto } from './dto/my-products.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/my-products')
+  myProducts(@Request() req: AuthenticatedRequest): Promise<MyProductsDto[]> {
+    return this.usersService.myProducts(req.user.id);
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
