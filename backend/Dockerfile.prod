@@ -1,0 +1,24 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml ./
+
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+RUN pnpm exec prisma generate
+
+RUN pnpm run build
+
+RUN pnpm prune --prod
+
+EXPOSE 3001
+
+COPY docker-entrypoint.prod.sh ./
+RUN chmod +x docker-entrypoint.prod.sh
+
+ENTRYPOINT ["./docker-entrypoint.prod.sh"]

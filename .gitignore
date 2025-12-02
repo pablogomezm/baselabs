@@ -1,2 +1,10 @@
 .env
 .vscode
+
+# Terraform
+.terraform/
+*.tfvars
+*.tfplan
+.terraform.tfstate.lock.info
+terraform.tfstate
+terraform.tfstate.*
